@@ -11,6 +11,7 @@
     <properties>
         <connector>1.7.4</connector>
         <junit>4.12</junit>
+        <jackson>2.9.4</jackson>
         <kotlin.version>1.2.21</kotlin.version>
     </properties>
 
@@ -19,6 +20,11 @@
             <groupId>org.tarantool</groupId>
             <artifactId>connector</artifactId>
             <version>${connector}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

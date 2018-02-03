@@ -1,5 +1,6 @@
 package org.tarantool.queue
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.tarantool.TarantoolClient
 
 /**
@@ -27,33 +28,81 @@ SOFTWARE.
  */
 
 
-abstract class TarantoolQueue(val client: TarantoolClient, val type: QueueType, val queueName: String, val temporary: Boolean = true, val ifNotExists: Boolean = true, val onTaskChange: String?) {
+class TarantoolQueue<T>(val client: TarantoolClient,
+                        val clazz: Class<T>,
+                        val type: QueueType = QueueType.FIFO,
+                        val queueName: String,
+                        val temporary: Boolean = true,
+                        val ifNotExists: Boolean = true,
+                        val onTaskChange: String? = null): Queue<T> {
+
     init {
         println("queue.create_tube('$queueName', '${type.type}', {temporary=$temporary, if_not_exists=$ifNotExists ${if (onTaskChange != null) ", on_task_change=$onTaskChange" else "" }})")
         client.syncOps().eval("queue = require('queue'); queue.create_tube('$queueName', '${type.type}', {temporary=$temporary, if_not_exists=$ifNotExists ${if (onTaskChange != null) ", on_task_change=$onTaskChange" else "" }})")
     }
 
-    abstract fun put()
-    abstract fun take()
-    abstract fun touch()
-    abstract fun ack()
-    abstract fun release()
-    abstract fun peek()
-    abstract fun bury()
-    abstract fun kick()
-    abstract fun delete()
-    abstract fun drop()
+    override fun put(task: T): Tuple<T> {
+        val json = mapper.writeValueAsString(task)
+        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:put('$json')")[0] as List<Any>
+        return deserialize(result)
+    }
 
-    fun statistics() = client.syncOps().eval("queue = require('queue'); return queue.statistics('$queueName')")
+    override fun take(timeout: Int?): Tuple<T> {
+        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:take()")[0] as List<Any>
+        return deserialize(result)
+    }
+
+    override fun touch(taskId: Int, increment: Int): Tuple<T> {
+        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:touch($taskId, $increment)")[0] as List<Any>
+        return deserialize(result)
+    }
+
+    override fun ack(taskId: Int): Tuple<T> {
+        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:ack($taskId)")[0] as List<Any>
+        return deserialize(result)
+    }
+
+    override fun release(taskId: Int): Tuple<T> {
+        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:release($taskId)")[0] as List<Any>
+        return deserialize(result)
+    }
+
+    override fun peek(taskId: Int): Tuple<T> {
+        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:peek($taskId)")[0] as List<Any>
+        return deserialize(result)
+    }
+
+    override fun bury(taskId: Int): Tuple<T> {
+        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:bury($taskId)")[0] as List<Any>
+        return deserialize(result)
+    }
+
+    override fun kick(count: Long): Long =
+            client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:kick($count)")[0] as Long
+
+    override fun delete(taskId: Int): Tuple<T> {
+        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:delete($taskId)")[0] as List<Any>
+        return deserialize(result)
+    }
+
+    override fun drop(): Boolean =
+            client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:drop()")[0] as Boolean
+
+
+    override fun truncate() {
+        client.syncOps().eval("queue = require('queue'); queue.tube.$queueName:truncate()")
+    }
+
+    fun statistics(): Map<String, Map<String, Int>> =
+            client.syncOps().eval("queue = require('queue'); return queue.statistics('$queueName')")[0] as Map<String, Map<String, Int>>
+
+    private fun deserialize(result: List<Any>): Tuple<T> {
+        val task = mapper.readValue(result[2] as String, clazz)
+
+        return Tuple(result[0] as Int, TaskStatus.getByValue(result[1] as String)!!, task)
+    }
 
     companion object {
-        fun build(client: TarantoolClient, type: QueueType = QueueType.FIFO, queueName: String, temporary: Boolean = true, ifNotExists: Boolean = true, onTaskChange: String? = null): TarantoolQueue {
-            return when (type) {
-                QueueType.FIFO -> TarantoolSimpleQueue(client, queueName, temporary, ifNotExists, onTaskChange)
-                QueueType.FIFO_TTL -> TarantoolTTLQueue(client, queueName, temporary, ifNotExists, onTaskChange)
-                QueueType.UTUBE -> TarantoolSimpleUtube(client, queueName, temporary, ifNotExists, onTaskChange)
-                QueueType.UTUBE_TTL -> TarantoolTTLUtube(client, queueName, temporary, ifNotExists, onTaskChange)
-            }
-        }
+        val mapper = ObjectMapper()
     }
 }
