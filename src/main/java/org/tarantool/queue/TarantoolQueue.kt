@@ -2,6 +2,7 @@ package org.tarantool.queue
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.tarantool.TarantoolClient
+import java.lang.UnsupportedOperationException
 
 /**
 MIT License
@@ -37,26 +38,34 @@ class TarantoolQueue<T>(val client: TarantoolClient,
                         val onTaskChange: String? = null): Queue<T> {
 
     init {
-        println("queue.create_tube('$queueName', '${type.type}', {temporary=$temporary, if_not_exists=$ifNotExists ${if (onTaskChange != null) ", on_task_change=$onTaskChange" else "" }})")
         client.syncOps().eval("queue = require('queue'); queue.create_tube('$queueName', '${type.type}', {temporary=$temporary, if_not_exists=$ifNotExists ${if (onTaskChange != null) ", on_task_change=$onTaskChange" else "" }})")
     }
 
-    override fun put(task: T): ResultSet<Tuple<T>> {
+    override fun put(task: T, options: List<Options>?): ResultSet<Tuple<T>> {
         val json = mapper.writeValueAsString(task)
+        if (options != null && options.isNotEmpty()) {
+            return ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:put('$json', {${options.joinToString(separator = ", ")}})"))
+        }
         return ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:put('$json')"))
     }
 
     override fun take(timeout: Int?): ResultSet<Tuple<T>> =
             ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:take($timeout)"))
 
-    override fun touch(taskId: Int, increment: Int): ResultSet<Tuple<T>> =
-            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:touch($taskId, $increment)"))
+    override fun touch(taskId: Int, increment: Int): ResultSet<Tuple<T>> {
+        if (type != QueueType.FIFO_TTL && type != QueueType.UTUBE_TTL) throw UnsupportedOperationException("Only fifottl and utubettl support this operation")
+        return ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:touch($taskId, $increment)"))
+    }
 
     override fun ack(taskId: Int): ResultSet<Tuple<T>> =
             ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:ack($taskId)"))
 
-    override fun release(taskId: Int): ResultSet<Tuple<T>> =
-            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:release($taskId)"))
+    override fun release(taskId: Int, options: List<Options>?): ResultSet<Tuple<T>> {
+        if (options != null && options.isNotEmpty()) {
+            return ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:release($taskId, {${options.joinToString(separator = ", ")}})"))
+        }
+        return ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:release($taskId)"))
+    }
 
     override fun peek(taskId: Int): ResultSet<Tuple<T>> =
             ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:peek($taskId)"))

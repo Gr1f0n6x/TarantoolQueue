@@ -32,7 +32,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-
 object TarantoolConnection {
     fun build(host: String, port: Int): TarantoolClient = TarantoolClientImpl(socketChannelProvider(host, port), TarantoolClientConfig().apply {
         this.username = "guest"

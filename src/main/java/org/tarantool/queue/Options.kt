@@ -24,6 +24,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-interface ResultSet<T> {
-    fun get(): T
+sealed class Options(val type: String)
+
+data class PRIORITY(val value: Int): Options("pri") {
+    override fun toString(): String {
+        return "$type=$value"
+    }
+}
+
+data class TTL(val value: Int): Options("ttl") {
+    override fun toString(): String {
+        return "$type=$value"
+    }
+}
+
+data class TTR(val value: Int): Options("ttr") {
+    override fun toString(): String {
+        return "$type=$value"
+    }
+}
+
+data class DELAY(val value: Int): Options("delay") {
+    override fun toString(): String {
+        return "$type=$value"
+}
+}
+
+data class UTUBE(val value: String): Options("utube") {
+    override fun toString(): String {
+        return "$type='$value'"
+    }
 }
