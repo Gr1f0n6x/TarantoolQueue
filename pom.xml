@@ -15,8 +15,8 @@
         <kotlin.version>1.2.21</kotlin.version>
     </properties>
 
-    <name>tarantoolorm</name>
-    <description>ORM wrapper for TarantoolConnector</description>
+    <name>tarantoolqueue</name>
+    <description>Wrapper for Tarantool queue module</description>
     <url>https://github.com/Gr1f0n6x/TarantoolQueue</url>
     <licenses>
         <license>
