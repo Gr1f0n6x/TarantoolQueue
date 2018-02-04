@@ -41,65 +41,59 @@ class TarantoolQueue<T>(val client: TarantoolClient,
         client.syncOps().eval("queue = require('queue'); queue.create_tube('$queueName', '${type.type}', {temporary=$temporary, if_not_exists=$ifNotExists ${if (onTaskChange != null) ", on_task_change=$onTaskChange" else "" }})")
     }
 
-    override fun put(task: T): Tuple<T> {
+    override fun put(task: T): ResultSet<Tuple<T>> {
         val json = mapper.writeValueAsString(task)
-        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:put('$json')")[0] as List<Any>
-        return deserialize(result)
+        return ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:put('$json')"))
     }
 
-    override fun take(timeout: Int?): Tuple<T> {
-        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:take()")[0] as List<Any>
-        return deserialize(result)
-    }
+    override fun take(timeout: Int?): ResultSet<Tuple<T>> =
+            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:take($timeout)"))
 
-    override fun touch(taskId: Int, increment: Int): Tuple<T> {
-        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:touch($taskId, $increment)")[0] as List<Any>
-        return deserialize(result)
-    }
+    override fun touch(taskId: Int, increment: Int): ResultSet<Tuple<T>> =
+            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:touch($taskId, $increment)"))
 
-    override fun ack(taskId: Int): Tuple<T> {
-        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:ack($taskId)")[0] as List<Any>
-        return deserialize(result)
-    }
+    override fun ack(taskId: Int): ResultSet<Tuple<T>> =
+            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:ack($taskId)"))
 
-    override fun release(taskId: Int): Tuple<T> {
-        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:release($taskId)")[0] as List<Any>
-        return deserialize(result)
-    }
+    override fun release(taskId: Int): ResultSet<Tuple<T>> =
+            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:release($taskId)"))
 
-    override fun peek(taskId: Int): Tuple<T> {
-        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:peek($taskId)")[0] as List<Any>
-        return deserialize(result)
-    }
+    override fun peek(taskId: Int): ResultSet<Tuple<T>> =
+            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:peek($taskId)"))
 
-    override fun bury(taskId: Int): Tuple<T> {
-        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:bury($taskId)")[0] as List<Any>
-        return deserialize(result)
-    }
+    override fun bury(taskId: Int): ResultSet<Tuple<T>> =
+            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:bury($taskId)"))
 
-    override fun kick(count: Long): Long =
-            client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:kick($count)")[0] as Long
+    override fun kick(count: Long): ResultSet<Long> =
+            ResultSetImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:kick($count)"))
 
-    override fun delete(taskId: Int): Tuple<T> {
-        val result = client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:delete($taskId)")[0] as List<Any>
-        return deserialize(result)
-    }
+    override fun delete(taskId: Int): ResultSet<Tuple<T>> =
+            ResultSetTaskImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:delete($taskId)"))
 
-    override fun drop(): Boolean =
-            client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:drop()")[0] as Boolean
-
+    override fun drop(): ResultSet<Boolean> =
+            ResultSetImpl(client.syncOps().eval("queue = require('queue'); return queue.tube.$queueName:drop()"))
 
     override fun truncate() {
         client.syncOps().eval("queue = require('queue'); queue.tube.$queueName:truncate()")
     }
 
-    fun statistics(): Map<String, Map<String, Int>> =
-            client.syncOps().eval("queue = require('queue'); return queue.statistics('$queueName')")[0] as Map<String, Map<String, Int>>
+    fun statistics(): ResultSet<Map<String, Map<String, Int>>> =
+            ResultSetImpl(client.syncOps().eval("queue = require('queue'); return queue.statistics('$queueName')"))
 
-    private fun deserialize(result: List<Any>): Tuple<T> {
-        val task = mapper.readValue(result[2] as String, clazz)
+    private inner class ResultSetTaskImpl(val result: List<*>): ResultSet<Tuple<T>> {
+        override fun get(): Tuple<T> =
+                if (result.isNotEmpty()) deserialize(result[0] as List<*>) else null!!
 
-        return Tuple(result[0] as Int, TaskStatus.getByValue(result[1] as String)!!, task)
+        private fun deserialize(result: List<*>): Tuple<T> {
+            val task = mapper.readValue(result[2] as String, clazz)
+
+            return Tuple(result[0] as Int, TaskStatus.getByValue(result[1] as String)!!, task)
+        }
+    }
+
+    private inner class ResultSetImpl<R>(val result: List<*>): ResultSet<R> {
+        override fun get(): R =
+                if (result.isNotEmpty()) result[0] as R else null!!
     }
 
     companion object {
