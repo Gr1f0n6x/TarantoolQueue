@@ -92,7 +92,14 @@ class TarantoolQueueAsync<T>(val client: TarantoolClient,
 
     private inner class ResultSetTaskImpl(val result: Future<List<*>>): ResultSet<Tuple<T>> {
         override fun get(): Tuple<T> =
-                if (!result.isCancelled) deserialize(result.get()[0] as List<*>) else null!!
+                if (!result.isCancelled) {
+                    val list = result.get()
+                    if (list.isNotEmpty()) {
+                        deserialize(list[0] as List<*>)
+                    } else {
+                        Tuple(0, TaskStatus.BURIED, clazz.newInstance())
+                    }
+                } else Tuple(0, TaskStatus.BURIED, clazz.newInstance())
 
         private fun deserialize(result: List<*>): Tuple<T> {
             val task = mapper.readValue(result[2] as String, clazz)

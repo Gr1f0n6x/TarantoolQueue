@@ -91,11 +91,10 @@ class TarantoolQueue<T>(val client: TarantoolClient,
 
     private inner class ResultSetTaskImpl(val result: List<*>): ResultSet<Tuple<T>> {
         override fun get(): Tuple<T> =
-                if (result.isNotEmpty()) deserialize(result[0] as List<*>) else null!!
+                if (result.isNotEmpty()) deserialize(result[0] as List<*>) else Tuple(0, TaskStatus.BURIED, clazz.newInstance())
 
         private fun deserialize(result: List<*>): Tuple<T> {
             val task = mapper.readValue(result[2] as String, clazz)
-
             return Tuple(result[0] as Int, TaskStatus.getByValue(result[1] as String)!!, task)
         }
     }
