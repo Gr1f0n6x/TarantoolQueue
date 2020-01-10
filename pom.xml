@@ -6,74 +6,86 @@
 
     <groupId>com.github.Gr1f0n6x</groupId>
     <artifactId>tarantoolqueue</artifactId>
-    <version>0.3.1</version>
+    <version>0.4</version>
 
     <properties>
-        <connector>1.7.4</connector>
-        <junit>4.12</junit>
-        <jackson>2.9.4</jackson>
-        <kotlin.version>1.2.21</kotlin.version>
+        <auto-service-version>1.0-rc6</auto-service-version>
+        <javapoet-version>1.11.1</javapoet-version>
+        <tarantool-connector-version>1.9.4</tarantool-connector-version>
+        <slf4j-api-version>1.7.30</slf4j-api-version>
+        <logback-version>1.2.3</logback-version>
+        <testcontainers-version>1.12.4</testcontainers-version>
+        <junit-version>4.12</junit-version>
+        <google-truth-version>1.0</google-truth-version>
+        <google-compile-testing-version>0.18</google-compile-testing-version>
+        <google-guava-version>28.1-jre</google-guava-version>
+        <jackson-version>2.10.1</jackson-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <name>tarantoolqueue</name>
+    <name>tarantool-queue</name>
     <description>Wrapper for Tarantool queue module</description>
-    <url>https://github.com/Gr1f0n6x/TarantoolQueue</url>
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>https://opensource.org/licenses/MIT</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>Nikita Ryanov</name>
-            <email>ryanov.nikita@gmail.com</email>
-        </developer>
-    </developers>
-    <scm>
-        <connection>scm:git:git@github.com:Gr1f0n6x/TarantoolQueue.git</connection>
-        <developerConnection>scm:git:git@github.com:Gr1f0n6x/TarantoolQueue.git</developerConnection>
-        <url>https://github.com/Gr1f0n6x/TarantoolQueue</url>
-    </scm>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-
+    <url>https://github.com/nryanov/tarantool-queue</url>
 
     <dependencies>
         <dependency>
-            <groupId>org.tarantool</groupId>
-            <artifactId>connector</artifactId>
-            <version>${connector}</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson}</version>
+            <version>${jackson-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>${auto-service-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>${javapoet-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${google-guava-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.tarantool</groupId>
+            <artifactId>connector</artifactId>
+            <version>${tarantool-connector-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers-version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit}</version>
+            <version>${junit-version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jre8</artifactId>
-            <version>${kotlin.version}</version>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <version>${google-truth-version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
-            <version>${kotlin.version}</version>
+            <groupId>com.google.testing.compile</groupId>
+            <artifactId>compile-testing</artifactId>
+            <version>${google-compile-testing-version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -83,6 +95,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -128,32 +141,36 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvmTarget>1.8</jvmTarget>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Nikita Ryanov</name>
+            <email>ryanov.nikita@gmail.com</email>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git@github.com:nryanov/tarantool-queue.git</connection>
+        <developerConnection>scm:git:git@github.com:nryanov/tarantool-queue.git</developerConnection>
+        <url>https://github.com/nryanov/tarantool-queue</url>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
 </project>
