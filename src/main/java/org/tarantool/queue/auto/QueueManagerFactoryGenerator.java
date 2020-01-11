@@ -12,14 +12,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-final class TaskManagerFactoryGenerator {
+final class QueueManagerFactoryGenerator {
     private final Filer filer;
 
-    public TaskManagerFactoryGenerator(Filer filer) {
+    public QueueManagerFactoryGenerator(Filer filer) {
         this.filer = filer;
     }
 
-    public void generate(List<TaskMeta> metaList) throws IOException {
+    public void generate(List<QueueMeta> metaList) throws IOException {
         TypeSpec factory = TypeSpec
                 .classBuilder("TaskManagerFactory")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -41,8 +41,8 @@ final class TaskManagerFactoryGenerator {
                 .constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(TarantoolClient.class, "tarantoolClient", Modifier.FINAL)
-                .addCode("this.$N = $N", "tarantoolClient", "tarantoolClient")
-                .addCode("this.$N = new $T()", "objectMapper", ObjectMapper.class)
+                .addStatement("this.$N = $N", "tarantoolClient", "tarantoolClient")
+                .addStatement("this.$N = new $T()", "objectMapper", ObjectMapper.class)
                 .build();
     }
 
@@ -52,12 +52,12 @@ final class TaskManagerFactoryGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(TarantoolClient.class, "tarantoolClient", Modifier.FINAL)
                 .addParameter(ObjectMapper.class, "objectMapper", Modifier.FINAL)
-                .addCode("this.$N = $N", "tarantoolClient", "tarantoolClient")
-                .addCode("this.$N = $N", "objectMapper", "objectMapper")
+                .addStatement("this.$N = $N", "tarantoolClient", "tarantoolClient")
+                .addStatement("this.$N = $N", "objectMapper", "objectMapper")
                 .build();
     }
 
-    private Iterable<MethodSpec> generateFactories(List<TaskMeta> metas) {
+    private Iterable<MethodSpec> generateFactories(List<QueueMeta> metas) {
         return metas
                 .stream()
                 .map(meta -> {
@@ -67,8 +67,8 @@ final class TaskManagerFactoryGenerator {
                             .methodBuilder(Common.capitalize(meta.taskManagerName))
                             .addModifiers(Modifier.PUBLIC)
                             .returns(generatedClass)
-                            .addStatement("$T reader = $N.reader()", ObjectReader.class, "objectMapper")
-                            .addStatement("$T writer = $N.writer()", ObjectWriter.class, "objectMapper")
+                            .addStatement("$T reader = $N.readerFor($T.class)", ObjectReader.class, "objectMapper", meta.classType)
+                            .addStatement("$T writer = $N.writerFor($T.class)", ObjectWriter.class, "objectMapper", meta.classType)
                             .addStatement("return new $T($N, reader, writer)", generatedClass, "tarantoolClient")
                             .build();
                 })
