@@ -16,7 +16,7 @@ interface PutWithOptions {
                 .addParameter(queueMeta.classType, "task", Modifier.FINAL)
                 .beginControlFlow("try")
                 .addStatement("$T taskJson = writer.writeValueAsString(task)", String.class)
-                .addStatement("return new PutOperationBuilder<>(tarantoolClient, meta, taskJson)", EvalOperation.class, String.class)
+                .addStatement("return new PutOperationBuilder(tarantoolClient, meta, taskJson)", EvalOperation.class, String.class)
                 .nextControlFlow("catch ($T e)", Exception.class)
                 .addStatement("throw new $T(e)", RuntimeException.class)
                 .endControlFlow()

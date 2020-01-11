@@ -78,7 +78,7 @@ final class UtubeQueueManagerGenerator extends QueueManagerGenerator implements 
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("$T options = new $T()", StringBuilder.class, StringBuilder.class)
                     .beginControlFlow("if (utube != null)")
-                    .addStatement("options.append(\"'$L'=\").append(\"'\").append($L).append(\"'\").append(\",\"))", "ttl", "ttl")
+                    .addStatement("options.append(\"'$L'=\").append(\"'\").append($L).append(\"'\").append(\",\")", "utube", "utube")
                     .endControlFlow()
                     .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:put(%s, {%s})")
                     .build();
@@ -115,9 +115,9 @@ final class UtubeQueueManagerGenerator extends QueueManagerGenerator implements 
             return MethodSpec
                     .constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(long.class, "taskId")
                     .addParameter(TarantoolClient.class, "tarantoolClient", Modifier.FINAL)
                     .addParameter(ParameterizedTypeName.get(ClassName.get(Meta.class), queueMeta.classType), "meta", Modifier.FINAL)
+                    .addParameter(long.class, "taskId")
                     .addStatement("this.$N = $N", "tarantoolClient", "tarantoolClient")
                     .addStatement("this.$N = $N", "meta", "meta")
                     .addStatement("this.$N = $N", "taskId", "taskId")
@@ -131,7 +131,7 @@ final class UtubeQueueManagerGenerator extends QueueManagerGenerator implements 
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("$T options = new $T()", StringBuilder.class, StringBuilder.class)
                     .beginControlFlow("if (utube != null)")
-                    .addStatement("options.append(\"'$L'=\").append(\"'\").append($L).append(\"'\").append(\",\"))", "ttl", "ttl")
+                    .addStatement("options.append(\"'$L'=\").append(\"'\").append($L).append(\"'\").append(\",\")", "utube", "utube")
                     .endControlFlow()
                     .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskId, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:release(%s, {%s})")
                     .build();

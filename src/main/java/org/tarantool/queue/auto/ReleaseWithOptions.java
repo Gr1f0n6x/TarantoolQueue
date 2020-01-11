@@ -14,7 +14,7 @@ interface ReleaseWithOptions {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(ParameterizedTypeName.get(ClassName.get(builderType), queueMeta.classType))
                 .addParameter(long.class, "taskId", Modifier.FINAL)
-                .addStatement("return new ReleaseOperationBuilder<>(tarantoolClient, meta, taskId)", EvalOperation.class, String.class)
+                .addStatement("return new ReleaseOperationBuilder(tarantoolClient, meta, taskId)", EvalOperation.class, String.class)
                 .build();
     }
 }

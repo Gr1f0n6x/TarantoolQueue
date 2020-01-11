@@ -39,7 +39,7 @@ abstract class QueueManagerGenerator {
     public QueueManagerGenerator(Filer filer, QueueMeta queueMeta) {
         this.filer = filer;
         this.queueMeta = queueMeta;
-        this.operationResultType = ParameterizedTypeName.get(ClassName.get(Operation.class), ClassName.get(Common.PACKAGE_NAME, queueMeta.taskManagerName));
+        this.operationResultType = ParameterizedTypeName.get(ClassName.get(Operation.class), queueMeta.classType);
     }
 
     public final void generate() throws IOException {
@@ -63,7 +63,7 @@ abstract class QueueManagerGenerator {
                 .addField(ObjectWriter.class, "writer", Modifier.PRIVATE, Modifier.FINAL)
                 .addField(metaGeneratorField(queueMeta, metaSpec))
                 .addType(metaSpec)
-                .addMethod(generateConstructor())
+                .addMethod(generateConstructor(metaSpec))
                 .addMethod(generatePut())
                 .addMethod(generateRelease())
                 .addMethod(generateAck())
@@ -85,11 +85,10 @@ abstract class QueueManagerGenerator {
         return FieldSpec
                 .builder(ParameterizedTypeName.get(ClassName.get(Meta.class), queueMeta.classType), "meta")
                 .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $L()", metaSpec.name)
                 .build();
     }
 
-    private MethodSpec generateConstructor() {
+    private MethodSpec generateConstructor(TypeSpec metaSpec) {
         return MethodSpec
                 .constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
@@ -99,6 +98,7 @@ abstract class QueueManagerGenerator {
                 .addStatement("this.$N = $N", "tarantoolClient", "tarantoolClient")
                 .addStatement("this.$N = $N", "reader", "reader")
                 .addStatement("this.$N = $N", "writer", "writer")
+                .addStatement("this.$N = new $L(reader, writer)", "meta", metaSpec.name)
                 .build();
     }
 
@@ -200,7 +200,7 @@ abstract class QueueManagerGenerator {
         public TypeSpec generate() {
             return TypeSpec
                     .classBuilder(Common.capitalize(queueMeta.className) + "Meta")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addModifiers(Modifier.PRIVATE)
                     .addField(ObjectReader.class, "reader", Modifier.PRIVATE, Modifier.FINAL)
                     .addField(ObjectWriter.class, "writer", Modifier.PRIVATE, Modifier.FINAL)
                     .superclass(ParameterizedTypeName.get(ClassName.get(Meta.class), queueMeta.classType))
