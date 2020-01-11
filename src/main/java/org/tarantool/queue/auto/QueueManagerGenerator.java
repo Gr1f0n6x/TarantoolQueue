@@ -17,6 +17,7 @@ import java.io.IOException;
 abstract class QueueManagerGenerator {
     private final Filer filer;
     protected final QueueMeta queueMeta;
+    protected final TypeName operationResultType;
 
     public static QueueManagerGenerator getInstance(Filer filer, QueueMeta queueMeta) {
         switch (queueMeta.queueType) {
@@ -38,21 +39,21 @@ abstract class QueueManagerGenerator {
     public QueueManagerGenerator(Filer filer, QueueMeta queueMeta) {
         this.filer = filer;
         this.queueMeta = queueMeta;
+        this.operationResultType = ParameterizedTypeName.get(ClassName.get(Operation.class), ClassName.get(Common.PACKAGE_NAME, queueMeta.taskManagerName));
     }
 
     public final void generate() throws IOException {
-        TypeName operationResultType = ParameterizedTypeName.get(ClassName.get(Operation.class), ClassName.get(Common.PACKAGE_NAME, queueMeta.taskManagerName));
         TaskMetaGenerator metaGenerator = new TaskMetaGenerator(queueMeta);
         TypeSpec metaSpec = metaGenerator.generate();
 
         JavaFile javaFile = JavaFile
-                .builder(Common.PACKAGE_NAME, queueBuilder(operationResultType, metaSpec).build())
+                .builder(Common.PACKAGE_NAME, queueBuilder(metaSpec).build())
                 .build();
 
         javaFile.writeTo(filer);
     }
 
-    protected TypeSpec.Builder queueBuilder(TypeName operationResultType, TypeSpec metaSpec) {
+    protected TypeSpec.Builder queueBuilder(TypeSpec metaSpec) {
         return TypeSpec
                 .classBuilder(queueMeta.taskManagerName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -63,14 +64,14 @@ abstract class QueueManagerGenerator {
                 .addField(metaGeneratorField(queueMeta, metaSpec))
                 .addType(metaSpec)
                 .addMethod(generateConstructor())
-                .addMethod(generatePut(queueMeta, operationResultType))
-                .addMethod(generateRelease(operationResultType))
-                .addMethod(generateAck(operationResultType))
-                .addMethod(generatePeek(operationResultType))
-                .addMethod(generateBury(operationResultType))
-                .addMethod(generateTake(operationResultType))
-                .addMethod(generateTakeWithTimeout(operationResultType))
-                .addMethod(generateDelete(operationResultType));
+                .addMethod(generatePut())
+                .addMethod(generateRelease())
+                .addMethod(generateAck())
+                .addMethod(generatePeek())
+                .addMethod(generateBury())
+                .addMethod(generateTake())
+                .addMethod(generateTakeWithTimeout())
+                .addMethod(generateDelete());
     }
 
     private FieldSpec queueNameField(QueueMeta queueMeta) {
@@ -101,7 +102,7 @@ abstract class QueueManagerGenerator {
                 .build();
     }
 
-    private MethodSpec generatePut(QueueMeta queueMeta, TypeName operationResultType) {
+    private MethodSpec generatePut() {
         return MethodSpec
                 .methodBuilder("put")
                 .addModifiers(Modifier.PUBLIC)
@@ -116,7 +117,7 @@ abstract class QueueManagerGenerator {
                 .build();
     }
 
-    private MethodSpec generateRelease(TypeName operationResultType) {
+    private MethodSpec generateRelease() {
         return MethodSpec
                 .methodBuilder("release")
                 .addModifiers(Modifier.PUBLIC)
@@ -126,7 +127,7 @@ abstract class QueueManagerGenerator {
                 .build();
     }
 
-    private MethodSpec generateTake(TypeName operationResultType) {
+    private MethodSpec generateTake() {
         return MethodSpec
                 .methodBuilder("take")
                 .addModifiers(Modifier.PUBLIC)
@@ -136,7 +137,7 @@ abstract class QueueManagerGenerator {
                 .build();
     }
 
-    private MethodSpec generateTakeWithTimeout(TypeName operationResultType) {
+    private MethodSpec generateTakeWithTimeout() {
         return MethodSpec
                 .methodBuilder("takeWithTimeout")
                 .addModifiers(Modifier.PUBLIC)
@@ -147,7 +148,7 @@ abstract class QueueManagerGenerator {
                 .build();
     }
 
-    private MethodSpec generateAck(TypeName operationResultType) {
+    private MethodSpec generateAck() {
         return MethodSpec
                 .methodBuilder("ack")
                 .addModifiers(Modifier.PUBLIC)
@@ -157,7 +158,7 @@ abstract class QueueManagerGenerator {
                 .build();
     }
 
-    private MethodSpec generatePeek(TypeName operationResultType) {
+    private MethodSpec generatePeek() {
         return MethodSpec
                 .methodBuilder("peek")
                 .addModifiers(Modifier.PUBLIC)
@@ -167,7 +168,7 @@ abstract class QueueManagerGenerator {
                 .build();
     }
 
-    private MethodSpec generateBury(TypeName operationResultType) {
+    private MethodSpec generateBury() {
         return MethodSpec
                 .methodBuilder("bury")
                 .addModifiers(Modifier.PUBLIC)
@@ -177,7 +178,7 @@ abstract class QueueManagerGenerator {
                 .build();
     }
 
-    private MethodSpec generateDelete(TypeName operationResultType) {
+    private MethodSpec generateDelete() {
         return MethodSpec
                 .methodBuilder("delete")
                 .addModifiers(Modifier.PUBLIC)

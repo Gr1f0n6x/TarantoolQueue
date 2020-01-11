@@ -1,7 +1,6 @@
 package org.tarantool.queue.auto;
 
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import org.tarantool.queue.internals.operations.EvalOperation;
 
@@ -14,12 +13,12 @@ abstract class TtlQueueManagerGenerator extends QueueManagerGenerator {
     }
 
     @Override
-    protected TypeSpec.Builder queueBuilder(TypeName operationResultType, TypeSpec metaSpec) {
-        return super.queueBuilder(operationResultType, metaSpec)
-                .addMethod(generateTouch(operationResultType));
+    protected TypeSpec.Builder queueBuilder(TypeSpec metaSpec) {
+        return super.queueBuilder(metaSpec)
+                .addMethod(generateTouch());
     }
 
-    private MethodSpec generateTouch(TypeName operationResultType) {
+    private MethodSpec generateTouch() {
         return MethodSpec
                 .methodBuilder("touch")
                 .addModifiers(Modifier.PUBLIC)
