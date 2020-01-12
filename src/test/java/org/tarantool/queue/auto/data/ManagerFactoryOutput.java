@@ -28,7 +28,7 @@ public class ManagerFactoryOutput extends Output {
             "this.objectMapper = objectMapper;",
             "}",
 
-            "public TaskQueue TaskQueue() {",
+            "public TaskQueue taskQueueManager() {",
             "ObjectReader reader = objectMapper.readerFor(Task.class);",
             "ObjectWriter writer = objectMapper.writerFor(Task.class);",
             "return new TaskQueue(tarantoolClient, reader, writer);",

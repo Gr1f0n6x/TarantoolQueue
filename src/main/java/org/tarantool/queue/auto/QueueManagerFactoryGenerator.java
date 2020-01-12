@@ -64,7 +64,7 @@ final class QueueManagerFactoryGenerator {
                     ClassName generatedClass = ClassName.get(Common.PACKAGE_NAME, meta.taskManagerName);
 
                     return MethodSpec
-                            .methodBuilder(Common.capitalize(meta.taskManagerName))
+                            .methodBuilder(queueManagerFactoryName(meta.taskManagerName))
                             .addModifiers(Modifier.PUBLIC)
                             .returns(generatedClass)
                             .addStatement("$T reader = $N.readerFor($T.class)", ObjectReader.class, "objectMapper", meta.classType)
@@ -73,5 +73,9 @@ final class QueueManagerFactoryGenerator {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    private String queueManagerFactoryName(String value) {
+        return value.substring(0, 1).toLowerCase() + value.substring(1) + "Manager";
     }
 }
