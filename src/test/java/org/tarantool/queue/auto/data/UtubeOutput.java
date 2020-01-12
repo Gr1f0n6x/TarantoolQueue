@@ -19,7 +19,6 @@ public class UtubeOutput extends Output {
 "import org.tarantool.queue.TaskInfo;",
 "import org.tarantool.queue.TaskStatus;",
 "import org.tarantool.queue.internals.Meta;",
-"import org.tarantool.queue.internals.builders.UtubeBuilder;",
 "import org.tarantool.queue.internals.operations.EvalOperation;",
 "import org.tarantool.queue.internals.operations.Operation;",
 "import test.Task;",
@@ -80,7 +79,7 @@ public class UtubeOutput extends Output {
             "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:delete(%s)\", queueName, taskId));",
         "}",
 
-        "public UtubeBuilder<Task> putWithOptions(final Task task) {",
+        "public TaskQueue.PutOperationBuilder putWithOptions(final Task task) {",
             "try {",
                 "String taskJson = writer.writeValueAsString(task);",
                 "return new PutOperationBuilder(tarantoolClient, meta, taskJson);",
@@ -89,7 +88,7 @@ public class UtubeOutput extends Output {
             "}",
         "}",
 
-        "public UtubeBuilder<Task> releaseWithOptions(final long taskId) {",
+        "public TaskQueue.ReleaseOperationBuilder releaseWithOptions(final long taskId) {",
             "return new ReleaseOperationBuilder(tarantoolClient, meta, taskId);",
         "}",
 
@@ -115,7 +114,7 @@ public class UtubeOutput extends Output {
             "}",
         "}",
 
-        "public final class PutOperationBuilder implements UtubeBuilder<Task> {",
+        "public final class PutOperationBuilder {",
             "private String utube;",
 
             "private final String taskJson;",
@@ -131,7 +130,7 @@ public class UtubeOutput extends Output {
                 "this.meta = meta;",
             "}",
 
-            "public UtubeBuilder<Task> setUtube(final String utube) {",
+            "public TaskQueue.PutOperationBuilder setUtube(final String utube) {",
                 "if (utube == null || utube.isEmpty()) {",
                     "throw new RuntimeException(\"utube name must not be null or empty\");",
                 "}",
@@ -148,7 +147,7 @@ public class UtubeOutput extends Output {
             "}",
         "}",
 
-        "public final class ReleaseOperationBuilder implements UtubeBuilder<Task> {",
+        "public final class ReleaseOperationBuilder {",
             "private String utube;",
 
             "private final long taskId;",
@@ -164,7 +163,7 @@ public class UtubeOutput extends Output {
                 "this.taskId = taskId;",
             "}",
 
-            "public UtubeBuilder<Task> setUtube(final String utube) {",
+            "public TaskQueue.ReleaseOperationBuilder setUtube(final String utube) {",
                 "if (utube == null || utube.isEmpty()) {",
                     "throw new RuntimeException(\"utube name must not be null or empty\");",
                 "}",

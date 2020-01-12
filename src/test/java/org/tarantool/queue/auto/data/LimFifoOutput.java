@@ -20,7 +20,6 @@ public class LimFifoOutput extends Output {
 "import org.tarantool.queue.TaskInfo;",
 "import org.tarantool.queue.TaskStatus;",
 "import org.tarantool.queue.internals.Meta;",
-"import org.tarantool.queue.internals.builders.LimitBuilder;",
 "import org.tarantool.queue.internals.operations.EvalOperation;",
 "import org.tarantool.queue.internals.operations.Operation;",
 "import test.Task;",
@@ -88,7 +87,7 @@ public class LimFifoOutput extends Output {
             "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:touch(%s, %s)\", queueName, taskId, increment));",
             "}",
 
-        "public LimitBuilder<Task> putWithOptions(final Task task) {",
+        "public TaskQueue.PutOperationBuilder putWithOptions(final Task task) {",
             "try {",
                 "String taskJson = writer.writeValueAsString(task);",
                 "return new PutOperationBuilder(tarantoolClient, meta, taskJson);",
@@ -97,7 +96,7 @@ public class LimFifoOutput extends Output {
             "}",
             "}",
 
-        "public LimitBuilder<Task> releaseWithOptions(final long taskId) {",
+        "public TaskQueue.ReleaseOperationBuilder releaseWithOptions(final long taskId) {",
             "return new ReleaseOperationBuilder(tarantoolClient, meta, taskId);",
             "}",
 
@@ -123,7 +122,7 @@ public class LimFifoOutput extends Output {
             "}",
             "}",
 
-        "public final class PutOperationBuilder implements LimitBuilder<Task> {",
+        "public final class PutOperationBuilder {",
             "private long ttl;",
 
             "private long ttr;",
@@ -147,7 +146,7 @@ public class LimFifoOutput extends Output {
                 "this.meta = meta;",
             "}",
 
-            "public LimitBuilder<Task> setTtl(final long ttl) {",
+            "public TaskQueue.PutOperationBuilder setTtl(final long ttl) {",
                 "if (ttl < 0) {",
                     "throw new RuntimeException(\"ttl must be >= 0\");",
                 "}",
@@ -155,7 +154,7 @@ public class LimFifoOutput extends Output {
                 "return this;",
             "}",
 
-            "public LimitBuilder<Task> setTtr(final long ttr) {",
+            "public TaskQueue.PutOperationBuilder setTtr(final long ttr) {",
                 "if (ttr < 0) {",
                     "throw new RuntimeException(\"ttr must be >= 0\");",
                 "}",
@@ -163,7 +162,7 @@ public class LimFifoOutput extends Output {
                 "return this;",
             "}",
 
-            "public LimitBuilder<Task> setTimeout(final long timeout) {",
+            "public TaskQueue.PutOperationBuilder setTimeout(final long timeout) {",
                 "if (timeout < 0) {",
                     "throw new RuntimeException(\"timeout must be >= 0\");",
                 "}",
@@ -171,7 +170,7 @@ public class LimFifoOutput extends Output {
                 "return this;",
             "}",
 
-            "public LimitBuilder<Task> setPriority(final long priority) {",
+            "public TaskQueue.PutOperationBuilder setPriority(final long priority) {",
                 "if (priority < 0) {",
                     "throw new RuntimeException(\"priority must be >= 0\");",
                 "}",
@@ -179,7 +178,7 @@ public class LimFifoOutput extends Output {
                 "return this;",
             "}",
 
-            "public LimitBuilder<Task> setDelay(final long delay) {",
+            "public TaskQueue.PutOperationBuilder setDelay(final long delay) {",
                 "if (delay < 0) {",
                     "throw new RuntimeException(\"delay must be >= 0\");",
                 "}",
@@ -208,7 +207,7 @@ public class LimFifoOutput extends Output {
             "}",
             "}",
 
-        "public final class ReleaseOperationBuilder implements LimitBuilder<Task> {",
+        "public final class ReleaseOperationBuilder {",
             "private long ttl;",
 
             "private long ttr;",
@@ -232,7 +231,7 @@ public class LimFifoOutput extends Output {
                 "this.taskId = taskId;",
             "}",
 
-            "public LimitBuilder<Task> setTtl(final long ttl) {",
+            "public TaskQueue.ReleaseOperationBuilder setTtl(final long ttl) {",
                 "if (ttl < 0) {",
                     "throw new RuntimeException(\"ttl must be >= 0\");",
                 "}",
@@ -240,7 +239,7 @@ public class LimFifoOutput extends Output {
                 "return this;",
             "}",
 
-            "public LimitBuilder<Task> setTtr(final long ttr) {",
+            "public TaskQueue.ReleaseOperationBuilder setTtr(final long ttr) {",
                 "if (ttr < 0) {",
                     "throw new RuntimeException(\"ttr must be >= 0\");",
                 "}",
@@ -248,7 +247,7 @@ public class LimFifoOutput extends Output {
                 "return this;",
             "}",
 
-            "public LimitBuilder<Task> setTimeout(final long timeout) {",
+            "public TaskQueue.ReleaseOperationBuilder setTimeout(final long timeout) {",
                 "if (timeout < 0) {",
                     "throw new RuntimeException(\"timeout must be >= 0\");",
                 "}",
@@ -256,7 +255,7 @@ public class LimFifoOutput extends Output {
                 "return this;",
             "}",
 
-            "public LimitBuilder<Task> setPriority(final long priority) {",
+            "public TaskQueue.ReleaseOperationBuilder setPriority(final long priority) {",
                 "if (priority < 0) {",
                     "throw new RuntimeException(\"priority must be >= 0\");",
                 "}",
@@ -264,7 +263,7 @@ public class LimFifoOutput extends Output {
                 "return this;",
             "}",
 
-            "public LimitBuilder<Task> setDelay(final long delay) {",
+            "public TaskQueue.ReleaseOperationBuilder setDelay(final long delay) {",
                 "if (delay < 0) {",
                     "throw new RuntimeException(\"delay must be >= 0\");",
                 "}",

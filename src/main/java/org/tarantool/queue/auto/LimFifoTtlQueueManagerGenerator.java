@@ -3,7 +3,6 @@ package org.tarantool.queue.auto;
 import com.squareup.javapoet.*;
 import org.tarantool.TarantoolClient;
 import org.tarantool.queue.internals.Meta;
-import org.tarantool.queue.internals.builders.LimitBuilder;
 import org.tarantool.queue.internals.operations.EvalOperation;
 
 import javax.annotation.processing.Filer;
@@ -21,12 +20,15 @@ final class LimFifoTtlQueueManagerGenerator extends TtlQueueManagerGenerator imp
         PutOperationBuilderGenerator putOperationBuilderGenerator = new PutOperationBuilderGenerator(operationResultType, queueMeta);
         ReleaseOperationBuilderGenerator releaseOperationBuilderGenerator = new ReleaseOperationBuilderGenerator(operationResultType, queueMeta);
 
+        TypeName putBuilderTypeName = ClassName.get(Common.PACKAGE_NAME, queueMeta.taskManagerName + ".PutOperationBuilder");
+        TypeName releaseBuilderTypeName = ClassName.get(Common.PACKAGE_NAME, queueMeta.taskManagerName + ".ReleaseOperationBuilder");
+
         TypeSpec.Builder builder = super.queueBuilder(metaSpec);
         builder
                 .addType(putOperationBuilderGenerator.generate())
                 .addType(releaseOperationBuilderGenerator.generate())
-                .addMethod(generatePutWithOptions(LimitBuilder.class, queueMeta))
-                .addMethod(generateReleaseWithOptions(LimitBuilder.class, queueMeta));
+                .addMethod(generatePutWithOptions(putBuilderTypeName, queueMeta))
+                .addMethod(generateReleaseWithOptions(releaseBuilderTypeName));
 
         return builder;
     }
@@ -41,12 +43,11 @@ final class LimFifoTtlQueueManagerGenerator extends TtlQueueManagerGenerator imp
         }
 
         public TypeSpec generate() {
-            TypeName typeName = ParameterizedTypeName.get(ClassName.get(LimitBuilder.class), queueMeta.classType);
+            TypeName typeName = ClassName.get(Common.PACKAGE_NAME, queueMeta.taskManagerName + ".PutOperationBuilder");
 
             return TypeSpec
                     .classBuilder("PutOperationBuilder")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addSuperinterface(typeName)
                     .addField(long.class, "ttl", Modifier.PRIVATE)
                     .addField(long.class, "ttr", Modifier.PRIVATE)
                     .addField(long.class, "priority", Modifier.PRIVATE)
@@ -114,12 +115,11 @@ final class LimFifoTtlQueueManagerGenerator extends TtlQueueManagerGenerator imp
         }
 
         public TypeSpec generate() {
-            TypeName typeName = ParameterizedTypeName.get(ClassName.get(LimitBuilder.class), queueMeta.classType);
+            TypeName typeName = ClassName.get(Common.PACKAGE_NAME, queueMeta.taskManagerName + ".ReleaseOperationBuilder");
 
             return TypeSpec
                     .classBuilder("ReleaseOperationBuilder")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addSuperinterface(typeName)
                     .addField(long.class, "ttl", Modifier.PRIVATE)
                     .addField(long.class, "ttr", Modifier.PRIVATE)
                     .addField(long.class, "priority", Modifier.PRIVATE)
