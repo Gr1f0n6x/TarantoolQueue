@@ -80,7 +80,7 @@ final class UtubeQueueManagerGenerator extends QueueManagerGenerator implements 
                     .beginControlFlow("if (utube != null)")
                     .addStatement("options.append(\"'$L'=\").append(\"'\").append($L).append(\"'\").append(\",\")", "utube", "utube")
                     .endControlFlow()
-                    .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:put(%s, {%s})")
+                    .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:put('%s', {%s})")
                     .build();
         }
     }

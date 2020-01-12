@@ -99,7 +99,7 @@ final class LimFifoTtlQueueManagerGenerator extends TtlQueueManagerGenerator imp
                     .beginControlFlow("if (timeout > 0)")
                     .addStatement("options.append(\"'$L'=\").append($L).append(\",\")", "timeout", "timeout")
                     .endControlFlow()
-                    .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:put(%s, {%s})")
+                    .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:put('%s', {%s})")
                     .build();
         }
     }

@@ -94,7 +94,7 @@ final class FifoTtlQueueManagerGenerator extends TtlQueueManagerGenerator implem
                     .beginControlFlow("if (priority > 0)")
                     .addStatement("options.append(\"'$L'=\").append($L).append(\",\")", "pri", "priority")
                     .endControlFlow()
-                    .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:put(%s, {%s})")
+                    .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:put('%s', {%s})")
                     .build();
         }
     }

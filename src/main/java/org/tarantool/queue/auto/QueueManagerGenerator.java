@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.squareup.javapoet.*;
 import org.tarantool.TarantoolClient;
+import org.tarantool.queue.QueueManager;
 import org.tarantool.queue.TaskInfo;
 import org.tarantool.queue.TaskStatus;
 import org.tarantool.queue.internals.Meta;
@@ -61,6 +62,7 @@ abstract class QueueManagerGenerator {
                 .addField(TarantoolClient.class, "tarantoolClient", Modifier.PRIVATE, Modifier.FINAL)
                 .addField(ObjectReader.class, "reader", Modifier.PRIVATE, Modifier.FINAL)
                 .addField(ObjectWriter.class, "writer", Modifier.PRIVATE, Modifier.FINAL)
+                .addSuperinterface(ParameterizedTypeName.get(ClassName.get(QueueManager.class), queueMeta.classType))
                 .addField(metaGeneratorField(queueMeta, metaSpec))
                 .addType(metaSpec)
                 .addMethod(generateConstructor(metaSpec))
@@ -110,7 +112,7 @@ abstract class QueueManagerGenerator {
                 .addParameter(queueMeta.classType, "task", Modifier.FINAL)
                 .beginControlFlow("try")
                 .addStatement("$T taskJson = writer.writeValueAsString(task)", String.class)
-                .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson))", EvalOperation.class, String.class, "return queue.tube.%s:put(%s)")
+                .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson))", EvalOperation.class, String.class, "return queue.tube.%s:put('%s')")
                 .nextControlFlow("catch ($T e)", Exception.class)
                 .addStatement("throw new $T(e)", RuntimeException.class)
                 .endControlFlow()

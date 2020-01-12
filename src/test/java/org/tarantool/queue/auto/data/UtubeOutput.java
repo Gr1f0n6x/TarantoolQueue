@@ -15,6 +15,7 @@ public class UtubeOutput extends Output {
 "import java.lang.StringBuilder;",
 "import java.util.List;",
 "import org.tarantool.TarantoolClient;",
+"import org.tarantool.queue.QueueManager;",
 "import org.tarantool.queue.TaskInfo;",
 "import org.tarantool.queue.TaskStatus;",
 "import org.tarantool.queue.internals.Meta;",
@@ -23,7 +24,7 @@ public class UtubeOutput extends Output {
 "import org.tarantool.queue.internals.operations.Operation;",
 "import test.Task;",
 
-    "public final class TaskQueue {",
+    "public final class TaskQueue implements QueueManager<Task> {",
         "private final String queueName = \"queue\";",
 
         "private final TarantoolClient tarantoolClient;",
@@ -45,7 +46,7 @@ public class UtubeOutput extends Output {
         "public Operation<Task> put(final Task task) {",
             "try {",
                 "String taskJson = writer.writeValueAsString(task);",
-                "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:put(%s)\", queueName, taskJson));",
+                "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:put('%s')\", queueName, taskJson));",
             "} catch (Exception e) {",
                 "throw new RuntimeException(e);",
             "}",
@@ -143,7 +144,7 @@ public class UtubeOutput extends Output {
                 "if (utube != null) {",
                     "options.append(\"'utube'=\").append(\"'\").append(utube).append(\"'\").append(\",\");",
                 "}",
-                "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:put(%s, {%s})\", queueName, taskJson, options.toString()));",
+                "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:put('%s', {%s})\", queueName, taskJson, options.toString()));",
             "}",
         "}",
 
