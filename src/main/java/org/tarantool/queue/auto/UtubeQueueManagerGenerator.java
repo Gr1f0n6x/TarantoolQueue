@@ -78,7 +78,7 @@ final class UtubeQueueManagerGenerator extends QueueManagerGenerator implements 
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("$T options = new $T()", StringBuilder.class, StringBuilder.class)
                     .beginControlFlow("if (utube != null)")
-                    .addStatement("options.append(\"'$L'=\").append(\"'\").append($L).append(\"'\").append(\",\")", "utube", "utube")
+                    .addStatement("options.append(\"$L=\").append(\"'\").append($L).append(\"'\").append(\",\")", "utube", "utube")
                     .endControlFlow()
                     .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskJson, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:put('%s', {%s})")
                     .build();
@@ -131,7 +131,7 @@ final class UtubeQueueManagerGenerator extends QueueManagerGenerator implements 
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement("$T options = new $T()", StringBuilder.class, StringBuilder.class)
                     .beginControlFlow("if (utube != null)")
-                    .addStatement("options.append(\"'$L'=\").append(\"'\").append($L).append(\"'\").append(\",\")", "utube", "utube")
+                    .addStatement("options.append(\"$L=\").append(\"'\").append($L).append(\"'\").append(\",\")", "utube", "utube")
                     .endControlFlow()
                     .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskId, options.toString()))", EvalOperation.class, String.class, "return queue.tube.%s:release(%s, {%s})")
                     .build();
