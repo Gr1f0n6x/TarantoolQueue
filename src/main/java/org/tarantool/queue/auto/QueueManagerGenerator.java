@@ -134,7 +134,7 @@ abstract class QueueManagerGenerator {
                 .methodBuilder("take")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(operationResultType)
-                .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName))", EvalOperation.class, String.class, "return queue.tube.%s:take()")
+                .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName))", EvalOperation.class, String.class, "return queue.tube.%s:take(0)")
                 .build();
     }
 

@@ -70,7 +70,7 @@ public class FifoTtlOutput extends Output {
         "}",
 
         "public Operation<Task> take() {",
-            "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:take()\", queueName));",
+            "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:take(0)\", queueName));",
         "}",
 
         "public Operation<Task> takeWithTimeout(final long timeout) {",
