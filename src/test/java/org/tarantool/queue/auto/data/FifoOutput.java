@@ -67,12 +67,12 @@ public class FifoOutput extends Output {
             "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:bury(%s)\", queueName, taskId));",
             "}",
 
-            "public Operation<Task> take(final long taskId) {",
-            "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:take(%s)\", queueName, taskId));",
+            "public Operation<Task> take() {",
+            "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:take()\", queueName));",
             "}",
 
-            "public Operation<Task> takeWithTimeout(final long taskId, final long timeout) {",
-            "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:take(%s, %s)\", queueName, taskId, timeout));",
+            "public Operation<Task> takeWithTimeout(final long timeout) {",
+            "return new EvalOperation<>(tarantoolClient, meta, String.format(\"return queue.tube.%s:take(%s)\", queueName, timeout));",
             "}",
 
             "public Operation<Task> delete(final long taskId) {",

@@ -13,9 +13,9 @@ public interface QueueManager<T> {
 
     Operation<T> bury(long taskId);
 
-    Operation<T> take(long taskId);
+    Operation<T> take();
 
-    Operation<T> takeWithTimeout(long taskId, long timeout);
+    Operation<T> takeWithTimeout(long timeout);
 
     Operation<T> delete(long taskId);
 }

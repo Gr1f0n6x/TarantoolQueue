@@ -134,8 +134,7 @@ abstract class QueueManagerGenerator {
                 .methodBuilder("take")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(operationResultType)
-                .addParameter(long.class, "taskId", Modifier.FINAL)
-                .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskId))", EvalOperation.class, String.class, "return queue.tube.%s:take(%s)")
+                .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName))", EvalOperation.class, String.class, "return queue.tube.%s:take()")
                 .build();
     }
 
@@ -144,9 +143,8 @@ abstract class QueueManagerGenerator {
                 .methodBuilder("takeWithTimeout")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(operationResultType)
-                .addParameter(long.class, "taskId", Modifier.FINAL)
                 .addParameter(long.class, "timeout", Modifier.FINAL)
-                .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, taskId, timeout))", EvalOperation.class, String.class, "return queue.tube.%s:take(%s, %s)")
+                .addStatement("return new $T<>(tarantoolClient, meta, $T.format($S, queueName, timeout))", EvalOperation.class, String.class, "return queue.tube.%s:take(%s)")
                 .build();
     }
 
