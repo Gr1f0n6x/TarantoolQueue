@@ -4,9 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.Gr1f0n6x</groupId>
-    <artifactId>tarantoolqueue</artifactId>
+    <groupId>com.nryanov.tarantool</groupId>
+    <artifactId>tarantool-queue</artifactId>
     <version>0.4</version>
+
+    <name>tarantool-queue</name>
+    <description>Wrapper for Tarantool queue module</description>
+    <url>https://github.com/nryanov/tarantool-queue</url>
 
     <properties>
         <auto-service-version>1.0-rc6</auto-service-version>
@@ -22,10 +26,6 @@
         <jackson-version>2.10.1</jackson-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <name>tarantool-queue</name>
-    <description>Wrapper for Tarantool queue module</description>
-    <url>https://github.com/nryanov/tarantool-queue</url>
 
     <dependencies>
         <dependency>
