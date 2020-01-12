@@ -1,5 +1,9 @@
 # TarantoolQueue
 
+[![Build Status](https://img.shields.io/travis/nryanov/tarantool-queue/master.svg)](https://travis-ci.com/nryanov/tarantool-queue)
+[![GitHub license](https://img.shields.io/github/license/nryanov/tarantool-queue)](https://github.com/nryanov/tarantool-queue/blob/master/LICENSE.txt)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.nryanov.tarantool/tarantool-queue/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.nryanov.tarantool/tarantool-queue)
+
 It is the wrapper for the [TarantoolQueue](https://github.com/tarantool/queue).
 This library uses `Java annotation processing` to generate code for your tasks to be able to easy use your tasks with tarantool's queue.
 
