@@ -23,7 +23,7 @@
         <google-truth-version>1.0</google-truth-version>
         <google-compile-testing-version>0.18</google-compile-testing-version>
         <google-guava-version>28.1-jre</google-guava-version>
-        <jackson-version>2.10.1</jackson-version>
+        <jackson-version>2.10.5.1</jackson-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
